@@ -1,33 +1,64 @@
 import os
 import argparse
+import sys
+import numpy as np
 
+listOfColors_Gruvbox = [['list', 'of', 'colors'], ['list', 'of', "list"]]
+
+# Get command argument
 def getArg():
     arg = argparse.ArgumentParser(description='Choose the directory of the Icons.')
-    arg.add_argument('-d', '--directory-path', nargs=1, type=str, \
+    arg.add_argument('-d', '--directory-path', type=str, \
         help='Set a directory path either '\
-            'from your working directory or from root directory.')
+            'from your working directory or from root directory.', \
+        dest='Directory')
 
-currentDir = os.getcwd()
+    args = arg.parse_args()
 
+    return args
 
+def getClosestColor(listColors, color):
+    listColors = np.array(listColors)
+    color = np.array(color)
+    difference = np.sqrt(np.sum((listColors-color)**2,axis=1))
+    indexSmallest = np.where(difference=np.amin(difference))
+    smallestDifference = listColors[indexSmallest]
 
+    return smallestDifference
 
 if __name__ == '__main__':
-    location = input("Please specify a path (Starting from where you are): ")
-
+    currentDir = f"{os.getcwd()}/"
+    args = getArg()
+    location = args.Directory
     files = os.listdir(location)
 
+    if location[0] == '/':
+        currentDir = ""
+
+    
     for file in files:
-        f = open(f"{currentDir}/{location}/{file}", "r")
+        f = open(f"{currentDir}{location}/{file}", "r")
         lines = f.readlines()
+        f.close()
+
+        #Scanning lines
+        filled = False
+        stroked = False
+        timesColored = 0
         for i in range(len(lines)):
-            if ".ColorScheme-Text { color:#dfdfdf; } .ColorScheme-Highlight { color:#4285f4; } .ColorScheme-NeutralText { color:#ff9800; } .ColorScheme-PositiveText { color:#4caf50; } .ColorScheme-NegativeText { color:#f44336; }" in lines[i]:
-                print(file)
-                f.close()
-                f = open(f"{currentDir}/{location}/{file}", "w")
-                lines[i] = "   .ColorScheme-Text { color:#fbf1c7; } .ColorScheme-Highlight { color:#458588; } .ColorScheme-NeutralText { color:#fe8019; } .ColorScheme-PositiveText { color:#689d6a; } .ColorScheme-NegativeText { color:#cc241d; }"
-                for line in lines:
-                    f.write(f"{line}\n")
-                f.close()
-            else:
-                f.close()
+            if ("fill:#" in lines[i] or "fill=\"#" in lines[i]):
+                print(f"Filling in file '{file}' in line {i}")
+                #Do conversion and replace num and write file
+            
+            if "stroke=\"#" in lines[i]:
+                print(f"Filling in file '{file}' in line {i}")
+                #Do conversion and replace num and write file
+
+            if (".ColorScheme-Text { color:#dfdfdf; } "\
+                ".ColorScheme-Highlight { color:#4285f4; } "\
+                ".ColorScheme-NeutralText { color:#ff9800; } "\
+                ".ColorScheme-PositiveText { color:#4caf50; } "\
+                ".ColorScheme-NegativeText { color:#f44336; }" in lines[i]):
+
+                print(f"Changing color scheme in file {file} in line {i}")
+                #Do conversion and replace num and write file
