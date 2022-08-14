@@ -1,0 +1,27 @@
+'bg0_h':
+'bg or bg0':
+'bg0_s':
+'bg1':
+'bg2':
+'bg3':
+'bg4':
+'gray 245':
+'fg4 or gray 246':
+'fg3':
+'fg2':
+'fg1 or fg':
+'fg0':
+'orange 166':
+'orange 208':
+'red 124':
+'red 167':
+'green 106':
+'green 142':
+'yellow 172':
+'yellow 214':
+'blue 66':
+'blue 109':
+'purple 132':
+'purple 175':
+'aqua 72':
+'aqua 108':

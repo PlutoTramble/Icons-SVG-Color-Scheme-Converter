@@ -3,35 +3,35 @@ import argparse
 import sys
 import numpy as np
 
-listOfColors_Gruvbox_dark = {\
-    'bg0_h':[29, 32, 33], \
-    'bg or bg0':[40, 40, 40], \
-    'bg0_s':[50, 48, 47], \
-    'bg1':[60, 56, 54], \
-    'bg2':[80, 73, 69], \
-    'bg3':[102, 92, 84], \
-    'bg4':[124, 111, 100], \
-    'gray 245':[146, 131, 116], \
-    'fg4 or gray 246':[168, 153, 132], \
-    'fg3':[189, 174, 147], \
-    'fg2':[213, 196, 161], \
-    'fg1 or fg':[235, 219, 178], \
-    'fg0':[251, 241, 199], \
-    'orange 166':[214, 93, 14], \
-    'orange 208':[254, 128, 25], \
-    'red 124':[204, 36, 29], \
-    'red 167':[251, 73, 52], \
-    'green 106':[152, 151, 26], \
-    'green 142':[184, 187, 38], \
-    'yellow 172':[215, 153, 33], \
-    'yellow 214':[250, 189, 47], \
-    'blue 66':[69, 133, 153], \
-    'blue 109':[131, 165, 152], \
-    'purple 132':[177, 98, 134], \
-    'purple 175':[211, 134, 155], \
-    'aqua 72':[104, 157, 106], \
-    'aqua 108':[142, 192, 124] \
-    }
+listOfColors_Gruvbox_dark = [\
+    [29, 32, 33], \
+    [40, 40, 40], \
+    [50, 48, 47], \
+    [60, 56, 54], \
+    [80, 73, 69], \
+    [102, 92, 84], \
+    [124, 111, 100], \
+    [146, 131, 116], \
+    [168, 153, 132], \
+    [189, 174, 147], \
+    [213, 196, 161], \
+    [235, 219, 178], \
+    [251, 241, 199], \
+    [214, 93, 14], \
+    [254, 128, 25], \
+    [204, 36, 29], \
+    [251, 73, 52], \
+    [152, 151, 26], \
+    [184, 187, 38], \
+    [215, 153, 33], \
+    [250, 189, 47], \
+    [69, 133, 136], \
+    [131, 165, 152], \
+    [177, 98, 134], \
+    [211, 134, 155], \
+    [104, 157, 106], \
+    [142, 192, 124] \
+]
 
 # Get command argument
 def getArg():
@@ -49,10 +49,42 @@ def getClosestColor(listColors, color):
     listColors = np.array(listColors)
     color = np.array(color)
     difference = np.sqrt(np.sum((listColors-color)**2,axis=1))
-    indexSmallest = np.where(difference=np.amin(difference))
-    smallestDifference = listColors[indexSmallest]
+    indexSmallest = np.where(difference==np.amin(difference))
+    smallestDifference = np.array(listColors[indexSmallest]).tolist()
 
     return smallestDifference
+
+def getConvertedColor(line:str, whatToFind:str):
+    lineIndex = line.find(whatToFind) + len(whatToFind)
+    colorHex = ""
+
+    #read color from line
+    for i in range(6):
+        colorHex += line[lineIndex]
+        lineIndex += 1
+    
+    lineIndex -= 7 # Reset lineIndex
+
+    colorRGB = list(int(colorHex[i:i+2], 16) for i in (0, 2, 4))
+    newColorRGB = getClosestColor(listOfColors_Gruvbox_dark, colorRGB)[0]
+    newColorHex = ('{:X}{:X}{:X}').format(\
+        newColorRGB[0], newColorRGB[1], newColorRGB[2]).lower()
+
+    # Write brand new line
+    newLine = ""
+    index_treshold_before_color = lineIndex
+    index_treshold_after_color = index_treshold_before_color + 6
+    color_string_index = 0
+    for i in range(len(line) - 1): 
+        if i > index_treshold_before_color and i <= index_treshold_after_color:
+            newLine += newColorHex[color_string_index]
+            print(color_string_index)
+            color_string_index += 1
+        else:
+            newLine += line[i]
+
+    return newLine
+
 
 if __name__ == '__main__':
     currentDir = f"{os.getcwd()}/"
@@ -77,7 +109,8 @@ if __name__ == '__main__':
         for i in range(len(lines)):
             if "fill:#" in lines[i]:
                 print(f"Filling in file '{file}' in line {i}")
-                #Do conversion and replace num and write file
+                new_line = getConvertedColor(lines[i], "fill:#")
+                lines[i] = new_line
 
             if "fill=\"#" in lines[i]:
                 print(f"Filling in file '{file}' in line {i}")
@@ -95,3 +128,8 @@ if __name__ == '__main__':
 
                 print(f"Changing color scheme in file {file} in line {i}")
                 #Do conversion and replace num and write file
+
+        #f = open(fullPath, "w")
+
+        for line in lines:
+            print(line)
