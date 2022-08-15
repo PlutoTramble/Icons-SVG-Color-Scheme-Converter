@@ -67,7 +67,12 @@ def getConvertedColor(line:str, whatToFind:str):
     print(colorHex)
     lineIndex -= 7 # Reset lineIndex
 
-    if colorHex[3] == '"' or colorHex[4] == '"' or colorHex[5] == '"':
+    if colorHex == "value_":
+        return line
+
+    if (colorHex[3] == '"' or colorHex[4] == '"' or colorHex[5] == '"') or\
+        (colorHex[3] == ';' or colorHex[4] == ';' or colorHex[5] == ';'):
+
         colorHex = colorHex[:3] + colorHex[:3]
         line = line[:lineIndex] + colorHex[:3] + line[lineIndex:]
 
@@ -110,6 +115,7 @@ if __name__ == '__main__':
         #Scanning lines
         filled = []
         stroked = []
+        stopped_color = []
         for i in range(len(lines)):
             if "fill:#" in lines[i] and i not in filled:
                 print(f"Filling in file '{file}' in line {i}")
@@ -117,20 +123,23 @@ if __name__ == '__main__':
                 lines[i] = new_line
                 filled.append(i)
 
-
-            if "stop-color:#" in lines[i] and i not in filled:
-                print(f"Filling in file '{file}' in line {i}")
-                new_line = getConvertedColor(lines[i], "stop-color:#")
-                lines[i] = new_line
-                filled.append(i)
-
-
             if "fill=\"#" in lines[i] and i not in filled:
                 print(f"Filling in file '{file}' in line {i}")
                 new_line = getConvertedColor(lines[i], "fill=\"#")
                 lines[i] = new_line
                 filled.append(i)
 
+            if "stop-color:#" in lines[i] and i not in stopped_color:
+                print(f"Stopping color in file '{file}' in line {i}")
+                new_line = getConvertedColor(lines[i], "stop-color:#")
+                lines[i] = new_line
+                filled.append(i)
+
+            if "stop-color=\"#" in lines[i] and i not in stopped_color:
+                print(f"Stopping color in file '{file}' in line {i}")
+                new_line = getConvertedColor(lines[i], "stop-color=\"#")
+                lines[i] = new_line
+                filled.append(i)
             
             if "stroke=\"#" in lines[i] and i not in stroked:
                 print(f"Stroking in file '{file}' in line {i}")
@@ -138,6 +147,11 @@ if __name__ == '__main__':
                 lines[i] = new_line
                 stroked.append(i)
 
+            if "stroke:#" in lines[i] and i not in stroked:
+                print(f"Stroking in file '{file}' in line {i}")
+                new_line = getConvertedColor(lines[i], "stroke:#")
+                lines[i] = new_line
+                stroked.append(i)
 
             # FIXME: This one is temporary. It's for Papirus
             # I'll do something that treats multiple instances in one line later
