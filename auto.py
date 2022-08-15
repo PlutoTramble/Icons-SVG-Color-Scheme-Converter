@@ -1,8 +1,8 @@
 import os
 import argparse
-import sys
+import time
 import numpy as np
-import gc
+
 
 listOfColors_Gruvbox_dark = [\
     [29, 32, 33], \
@@ -66,6 +66,10 @@ def getConvertedColor(line:str, whatToFind:str):
     
     print(colorHex)
     lineIndex -= 7 # Reset lineIndex
+
+    if colorHex[3] == '"' or colorHex[4] == '"' or colorHex[5] == '"':
+        colorHex = colorHex[:3] + colorHex[:3]
+        line = line[:lineIndex] + colorHex[:3] + line[lineIndex:]
 
     colorRGB = list(int(colorHex[i:i+2], 16) for i in (0, 2, 4))
     newColorRGB = getClosestColor(listOfColors_Gruvbox_dark, colorRGB)[0]
@@ -152,5 +156,8 @@ if __name__ == '__main__':
 
         # Write lines to file
         f2 = open(fullPath, "w")
-        f2.writelines(lines)
+        with open(fullPath, "w") as f2:
+            f2.writelines(lines)
         f2.close()
+
+        #time.sleep(0.02)
